@@ -4,7 +4,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-hot-toast/headless";
 
 
-const initialState = {token: localStorage.getItem("token") as null | string, isLoading: false as boolean, error: null as null | string};
+const initialState = {token: typeof window !== "undefined"
+      ? localStorage.getItem("token")
+      : null, isLoading: false as boolean, error: null as null | string};
 
 
 const authSlice = createSlice({
