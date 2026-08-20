@@ -34,3 +34,8 @@ export interface PostsResponse {
   };
   Posts: Post[];
 }
+
+export interface CreatePostRequest {
+  body: string;
+  image?: File;
+}

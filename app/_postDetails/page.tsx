@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 import ShareIcon from '@mui/icons-material/Share';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Post } from '@/types/posts';
+import { Comment, Post } from '@/types/posts';
 import Image from 'next/image';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
@@ -21,10 +21,9 @@ interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
 }
 
-const ExpandMore = styled((props: ExpandMoreProps) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme }) => ({
+const ExpandMore = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== "expand",
+})<ExpandMoreProps>(({ theme }) => ({
   marginLeft: 'auto',
   transition: theme.transitions.create('transform', {
     duration: theme.transitions.duration.shortest,
@@ -45,7 +44,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   ],
 }));
 
-export default function PostDetails({post} : {post : Post}) {
+export default function PostDetails({post, isComment = false} : {post : Post, isComment?: boolean}) {
   const theme = useTheme();
   const [expanded, setExpanded] = React.useState(false);
 
@@ -54,7 +53,7 @@ export default function PostDetails({post} : {post : Post}) {
   };
 
   return (
-    <Card sx={{ maxWidth: '50%', mx: 'auto', mb: 3, mt:1 }}>
+     <Card sx={{ maxWidth: '50%', mx: 'auto', mb: 3, mt:1 }}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
@@ -92,7 +91,7 @@ export default function PostDetails({post} : {post : Post}) {
         </ExpandMore>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit sx={{bgcolor: theme.palette.background.paper}}>
-          {post.comments.length > 0? <CardContent>
+          {post.comments.length > 0 && isComment === false? <CardContent>
              <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
@@ -111,10 +110,30 @@ export default function PostDetails({post} : {post : Post}) {
         {post.comments[0].content}
       </Typography>
       <Link href={`singlePost/${post._id}`} style={{display: 'block', textAlign: 'right', color: theme.palette.primary.main ,textDecoration: 'none'}}>View All Comments</Link>
-      </CardContent> : ' '}
+      </CardContent> : post.comments.length > 0 && isComment && post.comments.map((comment: Comment) => <CardContent key={comment._id}>
+             <CardHeader
+        avatar={
+          <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+             <Image src={comment.commentCreator.photo} alt={post.user.name} style={{width: '100%', height: 'auto'}} width={60} height={60}/>
+          </Avatar>
+        }
+        action={
+          <IconButton aria-label="settings">
+            <MoreVertIcon />
+          </IconButton>
+        }
+        title={comment.commentCreator.name}
+        subheader={comment.createdAt.split('T', 1)}
+      /> 
+      <Typography sx={{mb: 2, width: '80%', mx: 'auto'}}>
+        {comment.content}
+      </Typography>
+      <Link href={`singlePost/${post._id}`} style={{display: 'block', textAlign: 'right', color: theme.palette.primary.main ,textDecoration: 'none'}}>View All Comments</Link>
+      </CardContent> )}
            
         
       </Collapse>
     </Card>
+    
   );
 }
