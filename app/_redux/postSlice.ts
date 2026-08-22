@@ -15,7 +15,7 @@ export const getPosts = createAsyncThunk('posts/getPosts', async ()=>{
     const data = await response.json();
     console.log(data, 'posts');
 
-    return data.Posts;
+    return data.posts;
 }) 
 export const getUserPosts = createAsyncThunk('posts/getUserPosts', async (id: string)=>{
     const response = await fetch(`/api/users/${id}/posts?`, {
@@ -28,7 +28,7 @@ export const getUserPosts = createAsyncThunk('posts/getUserPosts', async (id: st
     const data = await response.json();
     console.log(data, 'posts');
 
-    return data.Posts;
+    return data.posts;
 }) 
 export const getPost = createAsyncThunk('post/getPost', async (id : string)=>{
     const response = await fetch(`/api/posts/${id}`, {
