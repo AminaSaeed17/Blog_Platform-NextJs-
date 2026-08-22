@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     {
       message: "success",
 
-      token: "mock-token-123456789",
+      token: user.token,
 
       user: {
         _id: user._id,

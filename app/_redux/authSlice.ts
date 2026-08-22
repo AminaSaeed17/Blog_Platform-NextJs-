@@ -20,6 +20,7 @@ const authSlice = createSlice({
             state.token = action.payload.token;
             state.isLoading = false;
             localStorage.setItem("token", action.payload.token);
+            localStorage.setItem("userId", action.payload.user._id);
             toast.success("Login successful");
         },
         setError: (state, action) => {

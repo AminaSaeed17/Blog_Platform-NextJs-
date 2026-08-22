@@ -15,9 +15,11 @@ export default function CreatePost() {
 
         const form = e.currentTarget;
         console.log(form.body.value, form.image.files[0])
-        const formData = new FormData();
-        formData.append('body',form.body.value);
-        formData.append('image',form.image.files[0]);
+        const formData = new FormData(e.currentTarget);
+
+const body = formData.get("body");
+const image = formData.get("image");
+console.log(body, image);
 
 
         const response = await fetch('/api/posts/createPost', {
