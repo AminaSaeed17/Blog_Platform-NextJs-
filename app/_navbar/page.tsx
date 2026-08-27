@@ -1,65 +1,60 @@
 "use client";
 
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
+import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import Divider from "@mui/material/Divider";
 import { useState } from "react";
 import Link from "next/link";
 import { DarkMode } from "@mui/icons-material";
 import { useColorMode } from "../ThemeContext";
 import { useTheme } from "@mui/material/styles";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import { State } from "../_redux/store";
+import { dispatch, State } from "../_redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { setRemoveToken } from "../_redux/authSlice";
+import { getLoggedUser, setRemoveToken } from "../_redux/authSlice";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
-export default function Navbar() {
-  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+const drawerWidth = 240;
+
+export default function Sidebar() {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-    
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const theme = useTheme();
   const token = useSelector((state: State) => state.authReducer.token);
+  const user = useSelector((state: State) => state.authReducer.user);
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<dispatch>();
 
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
-
-const mounted = React.useSyncExternalStore(
-  () => () => {},
-  () => true,
-  () => false
-);
-
-  const handleOpenNavMenu = (event: {
-    currentTarget: React.SetStateAction<HTMLElement | null>;
-  }) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event: {
-    currentTarget: React.SetStateAction<HTMLElement | null>;
-  }) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
+  React.useEffect(() => {
+    if (token && !user) {
+      dispatch(getLoggedUser());
+    }
+  }, [token, user, dispatch]);
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const handleDrawerToggle = () => {
+    setMobileOpen((prev) => !prev);
+  };
+
   const { toggleColorMode } = useColorMode();
 
   function logout() {
@@ -68,222 +63,187 @@ const mounted = React.useSyncExternalStore(
     dispatch(setRemoveToken());
   }
 
+  const drawerContent = token && (
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+    >
+      <Box>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Typography
+            variant="h6"
+            noWrap
+            sx={{
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".1rem",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
+            {token ? (
+              <Link
+                href="/"
+                style={{
+                  textDecoration: "none",
+                  color: theme.palette.text.primary,
+                }}
+              >
+                Circle
+              </Link>
+            ) : (
+              "Circle"
+            )}
+          </Typography>
+          <IconButton onClick={toggleColorMode}>
+            {mounted &&
+              (theme.palette.mode === "dark" ? (
+                <DarkMode />
+              ) : (
+                <LightModeOutlinedIcon />
+              ))}
+          </IconButton>
+        </Toolbar>
+
+        <Divider />
+
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1,
+            py: 2,
+          }}
+        >
+          {user && (
+            <>
+              <Image
+                src={user.photo || "/user.png"}
+                alt={user.name}
+                width={60}
+                height={60}
+                style={{
+                  borderRadius: "50%",
+                }}
+              />
+
+              <Typography>{user.name}</Typography>
+
+              <Typography variant="body2" color="text.secondary">
+                {user.email}
+              </Typography>
+            </>
+          )}
+        </Box>
+
+        <List>
+          <ListItem disablePadding>
+            <Link
+              href="/"
+              style={{ textDecoration: "none", width: "100%" }}
+              onClick={() => setMobileOpen(false)}
+            >
+              <ListItemButton>
+                <ListItemText
+                  primary="All Posts"
+                  sx={{ color: theme.palette.text.primary }}
+                />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+          <ListItem disablePadding>
+            <Link
+              href="/profile"
+              style={{ textDecoration: "none", width: "100%" }}
+              onClick={() => setMobileOpen(false)}
+            >
+              <ListItemButton>
+                <ListItemText
+                  primary="my Posts"
+                  sx={{ color: theme.palette.text.primary }}
+                />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <Link
+              href="/createpost"
+              style={{ textDecoration: "none", width: "100%" }}
+              onClick={() => setMobileOpen(false)}
+            >
+              <ListItemButton>
+                <ListItemText
+                  primary="add post"
+                  sx={{ color: theme.palette.text.primary }}
+                />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+          <ListItem disablePadding>
+            <Link
+              href="/userProfile"
+              style={{ textDecoration: "none", width: "100%" }}
+              onClick={() => setMobileOpen(false)}
+            >
+              <ListItemButton>
+                <ListItemText
+                  primary="profile"
+                  sx={{ color: theme.palette.text.primary }}
+                />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+          <ListItem onClick={logout}>
+            <Typography sx={{ textAlign: "center" }}>Logout</Typography>
+          </ListItem>
+        </List>
+      </Box>
+    </Box>
+  );
+
   return (
     <>
-      <AppBar position="static">
-        <Container maxWidth="xl">
-          <Toolbar disableGutters sx={{ alignItems: "center" }}>
-            <Typography
-              variant="h6"
-              noWrap
-              sx={{
-                mr: 2,
-                display: { xs: "none", md: "flex" },
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".1rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              {token ? (
-                <Link
-                  href="/"
-                  style={{
-                    textDecoration: "none",
-                    color: theme.palette.text.primary,
-                  }}
-                >
-                  Circle
-                </Link>
-              ) : (
-                "Circle"
-              )}
-            </Typography>
+      {token && (
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: "block", md: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
 
-            <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenNavMenu}
-                color="inherit"
-              >
-                {token && <MenuIcon />}
-              </IconButton>
-
-              {token && (
-                <Menu
-                  id="menu-appbar"
-                  anchorEl={anchorElNav}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "left",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                  open={Boolean(anchorElNav)}
-                  onClose={handleCloseNavMenu}
-                  sx={{ display: { xs: "block", md: "none" } }}
-                >
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Link
-                      href="/profile"
-                      style={{
-                        textDecoration: "none",
-                        color: theme.palette.text.primary,
-                      }}
-                    >
-                      <Typography sx={{ textAlign: "center" }}>
-                        profile
-                      </Typography>
-                    </Link>
-                  </MenuItem>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Link
-                      href="/createpost"
-                      style={{
-                        textDecoration: "none",
-                        color: theme.palette.text.primary,
-                      }}
-                    >
-                      <Typography sx={{ textAlign: "center" }}>
-                        add post
-                      </Typography>
-                    </Link>
-                  </MenuItem>
-                </Menu>
-              )}
-            </Box>
-            <Typography
-              variant="h5"
-              noWrap
-              sx={{
-                mr: 2,
-                display: { xs: "flex", md: "none" },
-                flexGrow: 1,
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".1rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              {token ? (
-                <Link
-                  href="/"
-                  style={{
-                    textDecoration: "none",
-                    color: theme.palette.text.primary,
-                  }}
-                >
-                  Circle
-                </Link>
-              ) : (
-                "Circle"
-              )}
-            </Typography>
-            {token && (
-              <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-                <Link href="/profile" style={{ textDecoration: "none" }}>
-                  <Button
-                    onClick={handleCloseNavMenu}
-                    sx={{ my: 2, color: "white", display: "block" }}
-                  >
-                    profile
-                  </Button>
-                </Link>
-
-                <Link href="/createpost" style={{ textDecoration: "none" }}>
-                  <Button
-                    onClick={handleCloseNavMenu}
-                    sx={{
-                      my: 2,
-                      color: "white",
-                      display: "block",
-                      textTransform: "none",
-                    }}
-                  >
-                    add post
-                  </Button>
-                </Link>
-              </Box>
-            )}
-            {!token && <Box sx={{flexGrow: 1}} />}
-            <Box sx={{ flexGrow: 0 }}>
-              <IconButton onClick={toggleColorMode} sx={{ mr: 2 }}>
-                {mounted &&
-    (theme.palette.mode === "dark" ? (
-      <DarkMode />
-    ) : (
-      <LightModeOutlinedIcon />
-    ))}
-              </IconButton>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                </IconButton>
-              </Tooltip>
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                {token ? (
-                  <MenuItem onClick={logout}>
-                    <Typography sx={{ textAlign: "center" }}>Logout</Typography>
-                  </MenuItem>
-                ) : (
-                  <Box>
-                    <MenuItem onClick={handleCloseUserMenu}>
-                      <Typography sx={{ textAlign: "center" }}>
-                        <Link
-                          href="/register"
-                          style={{
-                            textDecoration: "none",
-                            color: theme.palette.text.primary,
-                          }}
-                        >
-                          Register
-                        </Link>
-                      </Typography>
-                    </MenuItem>
-
-                    <MenuItem onClick={handleCloseUserMenu}>
-                      <Typography sx={{ textAlign: "center" }}>
-                        <Link
-                          href="/login"
-                          style={{
-                            textDecoration: "none",
-                            color: theme.palette.text.primary,
-                          }}
-                        >
-                          Login
-                        </Link>
-                      </Typography>
-                    </MenuItem>
-                  </Box>
-                )}
-              </Menu>
-            </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
+      {token && (
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: "none", md: "block" },
+            width: drawerWidth,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+          open
+        >
+          {drawerContent}
+        </Drawer>
+      )}
     </>
   );
 }

@@ -6,6 +6,7 @@ import "./globals.css";
 import Navbar from "./_navbar/page";
 import ClientProviders from "./ClientProviders";
 import { Toaster } from "react-hot-toast";
+import { Box } from "@mui/material";
 
 
 
@@ -31,16 +32,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
+     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body>
-       <ClientProviders>
-          <Navbar />
-          {children}
+
+        <ClientProviders>
+
+          <Box sx={{ display: "flex" }}>
+
+            <Navbar />
+
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                p: 3,
+              }}
+            >
+              {children}
+            </Box>
+
+          </Box>
+
           <Toaster />
-       </ClientProviders>
+
+        </ClientProviders>
+
       </body>
     </html>
   );

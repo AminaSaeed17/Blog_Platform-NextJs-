@@ -6,7 +6,7 @@ export interface Comment {
     name: string;
     photo: string;
   };
-  post: string;
+  post?: string;
   createdAt: string;
 }
 

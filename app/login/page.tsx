@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { State } from "../_redux/store";
 import { setLoading, setError, setToken } from "../_redux/authSlice";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Login() {
 
@@ -43,6 +44,9 @@ async function login(values: { email: string; password: string }) {
       dispatch(setError(data.message));
     } else {
       dispatch(setToken(data));
+       localStorage.setItem("token", data.token);
+       localStorage.setItem("userId", data.user._id);
+
       router.push("/")
     }
 
@@ -129,7 +133,11 @@ const { values, handleChange, handleSubmit } = useFormik({
             >
               {isLoading ?  <CircularProgress aria-label="Loading…" /> : "Login"}
             </Button>
+            <Typography>Don&apos;t have an account? <Link style={{textDecoration: 'none', color: theme.palette.text.secondary}} href={'/register'}>Register</Link> </Typography>
           </Box>
+          <Typography>use Demo account</Typography>
+          <Typography>email: sara@test.com,
+              password: 123456,</Typography>
         </CardContent>
       </Card>
     </Box>
